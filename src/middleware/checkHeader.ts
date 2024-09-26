@@ -1,4 +1,5 @@
 import {Context, Next} from "hono";
+import { validateToken } from "../middleware/presignUrl";
 
 function validHeader (c: Context) {
   if (!c.env.AUTH_KEY_SECRET) {
@@ -9,7 +10,16 @@ function validHeader (c: Context) {
 
   if (c.req.method === 'GET') {
     if (c.env.PRIVATE_BUCKET) {
-      return useKey
+      if (useKey) {
+        return true;
+      } else {
+        const objectKey = c.req.param('Key').toString();
+        const presignedUrl = c.req.query('PresignedUrl')?.toString();
+        if (!objectKey || !presignedUrl) {
+          return false;
+        }
+        return validateToken(presignedUrl, objectKey, c.env.AUTH_KEY_SECRET);
+      }
     } else {
       return true
     }
