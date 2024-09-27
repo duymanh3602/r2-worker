@@ -13,7 +13,7 @@ import MpuComplete from './routes/mpu/complete'
 import MpuSupport from './routes/mpu/support'
 
 import checkHeader from "./middleware/checkHeader"
-import { sharing } from './middleware/presignUrl'
+import { generateKey } from './middleware/presignUrl'
 
 const app = new Hono()
 
@@ -24,7 +24,7 @@ app.use(cors())
 app.get('/', (c) => c.text('Hello R2! v2024.07.12'))
 
 // sharing resource
-app.post('/share', sharing) 
+app.post('/share', generateKey) 
 
 // multipart upload operations
 app.get('/support_mpu', MpuSupport)
