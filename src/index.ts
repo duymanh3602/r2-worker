@@ -21,7 +21,16 @@ app.use('*', checkHeader)
 
 app.use(cors())
 
-app.get('/', (c) => c.text('Hello R2! v2024.07.12'))
+app.get("/", (c) => {
+  return c.body(
+    JSON.stringify({ message: "Hello world !!!", status: 200 }),
+    200,
+    {
+      "X-Message": "Hello world!",
+      "Content-Type": "text/json",
+    }
+  );
+});
 
 // sharing resource
 app.post('/share', generateKey) 
@@ -40,7 +49,14 @@ app.put('/:key{.*}', Put)
 app.delete('/:key{.*}', Delete)
 
 app.all('*', c => {
-  return c.text('404 Not Found')
+  return c.body(
+    JSON.stringify({ message: "404 Not Found", status: 404 }),
+    404,
+    {
+      "X-Message": "Hello world!",
+      "Content-Type": "text/json",
+    }
+  );
 })
 
 export default app

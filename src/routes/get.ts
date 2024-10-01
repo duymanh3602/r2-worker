@@ -13,12 +13,13 @@ export default async function (c: Context) {
       const presignedUrl = c.req.query("PresignedUrl")?.toString();
       const expireTime = c.req.query("ExpireTime")?.toString() ?? '';
       if (!key || !presignedUrl) {
-        return new Response(
-          JSON.stringify({
-            message: "PresignedUrl and ObjectKey is required",
-            status: 400,
-          }),
-          { status: 400 }
+        return c.body(
+          JSON.stringify({ message: "Object not found", status: 404 }),
+          404,
+          {
+            "X-Message": "Object not found",
+            "Content-Type": "text/json",
+          }
         );
       }
       const check = await verifySignature(
@@ -28,12 +29,16 @@ export default async function (c: Context) {
         presignedUrl
       );
       if (!check) {
-        return new Response(
+        return c.body(
           JSON.stringify({
             message: "Unauthorized or expired link",
             status: 401,
           }),
-          { status: 401 }
+          401,
+          {
+            "X-Message": "Unauthorized or expired link",
+            "Content-Type": "text/json",
+          }
         );
       }
     }
@@ -42,12 +47,13 @@ export default async function (c: Context) {
   let object = await c.env.R2_BUCKET.get(key);
 
   if (object === null) {
-    return new Response(
-      JSON.stringify({
-        message: "Object not found",
-        status: 404,
-      }),
-      { status: 404 }
+    return c.body(
+      JSON.stringify({ message: "Object not found", status: 404 }),
+      404,
+      {
+        "X-Message": "Object not found",
+        "Content-Type": "text/json",
+      }
     );
   }
 
